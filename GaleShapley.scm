@@ -9,7 +9,7 @@
 (define (get-resident-info rid rlist)
   (cond ((null? rlist) '()) ; si la liste est vide sa retourne une liste vide
          ((= (car (car rlist)) rid) (car rlist)) ; si l'id du premier resident correspond sa le retourne
-         (else (get-resident-info rid (cdr rlist)))))) ; sinon cherche dans le reste de la liste
+         (else (get-resident-info rid (cdr rlist))))) ; sinon cherche dans le reste de la liste
 
 
 ; get-program-info
@@ -75,3 +75,73 @@
 (define (add-resident-to-match pair match)
   (list (car match)  ; garde l'ID du programme
         (insert-sorted pair (cadr match)))) ; insere le resident dans l'ordre
+
+
+; remove-from-list
+; retire la premiere occurrence d'un element d'une liste (utile pour retirer un programme deja essaye)
+(define (remove-from-list x lst)
+  (cond ((null? lst) '())        ; liste vide, rien a retirer
+        ((equal? (car lst) x) (cdr lst))     ; element trouve, on le retire
+        (else (cons (car lst)           ; sinon, on garde l'element courant
+                    (remove-from-list x (cdr lst))))))  ; et on continue dans le reste
+
+
+; update-matches
+; remplace l'entree d'un programme dans la liste d'appariements, ou l'ajoute si elle n'existe pas encore
+(define (update-matches pid new-match matches)
+  (cond ((null? matches) (list new-match))       ; pas trouve, ajoute a la fin
+        ((equal? (car (car matches)) pid) (cons new-match   ; trouve, remplace l'entree
+                                               (cdr matches)))
+        (else (cons (car matches)       ; sinon, garde l'entree courante
+                    (update-matches pid new-match (cdr matches)))))) ; et continue dans le reste
+
+
+; offer : fonction de l'algorithme de McVitie-Wilson
+; le resident propose au premier programme de sa liste de preferences, retourne la liste d'appariements mise a jour
+(define (offer rinfo rlist plist matches)
+  (let ((prefs (cadddr rinfo)))  ; recupere la liste de preferences
+    (if (null? prefs)
+        matches      ; plus de programmes a essayer
+        (let* ((pid (car prefs))           ; premier programme prefere
+               (pinfo (get-program-info pid plist))          ; info du programme cible
+               (trimmed-rinfo (list (car rinfo) (cadr rinfo) ; cree un rinfo sans le programme
+                                    (caddr rinfo) (cdr prefs))))    ;qu'on vient d'essayer
+          (evaluate trimmed-rinfo pinfo rlist plist matches)))))    ;envoie a evaluate pour decision
+
+
+; evaluate : fonction de l'algorithme de McVitie-Wilson
+; evalue si un resident peut etre accepte par un programme
+;si le programme est plein, compare le nouveau resident avec le moins prefere des residents actuels et expulse si besoin
+(define (evaluate rinfo pinfo rlist plist matches)
+  (let* ((rid (car rinfo))     ; ID du resident
+         (pid (car pinfo))     ; ID du programme
+         (quota (caddr pinfo))     ; quota du programme
+         (r (rank rid pinfo))  ; rang du resident dans ce programme
+         (pair (cons rid r))     ; paire (rid . rang)
+         (current-match (get-match pid matches)) ; appariements actuels du programme
+         (current-residents (if (null? current-match)
+                                '()
+                                (cadr current-match)))) ; liste des residents actuels
+    (cond
+      ; cas 1 : le programme n'est pas encore dans les appariements
+      ((null? current-match)
+       (update-matches pid
+                       (list pid (list pair))   ; cree un nouvel appariement
+                       matches))
+      ; cas 2 : le programme a encore de la place
+      ((< (length current-residents) quota)
+       (update-matches pid
+                       (add-resident-to-match pair current-match) ; ajoute le resident
+                       matches))
+      ; cas 3 : le programme est plein
+      ; compare le nouveau resident avec le moins prefere 
+      ((< r (cdr (car current-residents)))          ; nouveau resident mieux classe?
+       (let* ((worst (car (car current-residents)))          ; ID du resident kicked out
+              (worst-rinfo (get-resident-info worst rlist))   ; info du resident kicked out
+              (new-match (add-resident-to-match              
+                          pair (list pid (cdr current-residents)))); retire le pire, ajoute le nouveau
+              (updated-matches (update-matches pid new-match matches)))
+         (offer worst-rinfo rlist plist updated-matches)))    ; le resident kicked out doit re-essayer
+      ; cas 4 : le resident est moins bien classe que tous les actuels
+      (else
+       (offer rinfo rlist plist matches)))))                  ; le resident essaie son prochain choix
