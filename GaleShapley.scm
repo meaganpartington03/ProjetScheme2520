@@ -77,15 +77,6 @@
         (insert-sorted pair (cadr match)))) ; insere le resident dans l'ordre
 
 
-; remove-from-list
-; retire la premiere occurrence d'un element d'une liste (utile pour retirer un programme deja essaye)
-(define (remove-from-list x lst)
-  (cond ((null? lst) '())        ; liste vide, rien a retirer
-        ((equal? (car lst) x) (cdr lst))     ; element trouve, on le retire
-        (else (cons (car lst)           ; sinon, on garde l'element courant
-                    (remove-from-list x (cdr lst))))))  ; et on continue dans le reste
-
-
 ; update-matches
 ; remplace l'entree d'un programme dans la liste d'appariements, ou l'ajoute si elle n'existe pas encore
 (define (update-matches pid new-match matches)
