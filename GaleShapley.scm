@@ -3,6 +3,37 @@
 ; Par : Meagan Partington 300416906
 ; Anastasia Sardosvkyy 300426037
 
+; Fonctions fournies par le prof pour lire les fichiers CSV
+
+(define (read-f filename) (call-with-input-file filename
+(lambda (input-port)
+(let loop ((line (read-line input-port)))
+(cond
+ ((eof-object? line) '())
+ (#t (begin (cons (string-split (clean-line line) ",") (loop (read-line input-port))))))))))
+
+(define (format-resident lst)
+  (list (car lst) (cadr lst) (caddr lst) (cdddr lst)))
+
+(define (format-program lst)
+  (list (car lst) (cadr lst) (string->number (caddr lst)) (map string->number(cdddr lst))))
+
+(define (clean-line str)
+  (list->string
+   (filter (lambda (c) (not (or (char=? c #\") (char=? c #\[) (char=? c #\]) )))
+           (string->list str))))
+
+(define (read-residents filename)
+(map (lambda(L) (format-resident (cons (string->number (car L)) (cdr L)))) (cdr (read-f filename))))
+
+(define (read-programs filename)
+(map format-program (cdr (read-f filename))))
+
+
+; Definition des listes de residents et de programmes
+(define PLIST (read-programs "programSmall.csv"))
+(define RLIST (read-residents "residentSmall.csv"))
+
 
 ; get-resident-info
 ; return les infos d'un resident a partir de son RID dans la liste des residnets
