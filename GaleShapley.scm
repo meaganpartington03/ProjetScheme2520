@@ -167,3 +167,14 @@
       ; cas 4 : le resident est moins bien classe que tous les actuels
       (else
        (offer rinfo rlist plist matches)))))                  ; le resident essaie son prochain choix
+
+
+; gale-shapley : fonction principale de l'algorithme de McVitie-Wilson
+; appelle offer pour chaque resident de la liste et retourne la liste finale des appariements
+
+
+
+
+; gale-shapley-print 
+; fonction de plus haut niveau qui affiche les resultats de l'algorithme de Gale-Shapley
+; (fournie par le professeur, adaptee pour notre implementation)
