@@ -33,9 +33,10 @@
 
 
 ; Definition des listes de residents et de programmes
-(define PLIST (read-programs "programSmall.csv"))
-(define RLIST (read-residents "residentSmall.csv"))
-
+; (define PLIST (read-programs "programSmall.csv"))
+; (define RLIST (read-residents "residentSmall.csv"))
+(define PLIST (read-programs "programs4000.csv"))
+(define RLIST (read-residents "residents4000.csv"))
 
 ; get-resident-info
 ; return les infos d'un resident a partir de son RID dans la liste des residnets
@@ -178,17 +179,17 @@
           (else (offer rinfo rlist plist matches)))))) ; si le résident n'est pas accepté, essaie un autre programme
 
 
+
 ; gale-shapley : fonction principale de l'algorithme de McVitie-Wilson
 ; appelle offer pour chaque resident de la liste et retourne la liste finale des appariements
 
 (define (gale-shapley rlist plist matches)
   (if (null? rlist) matches ; si la liste est vide, rétourne matches
-      (let* (
-             (current (car rlist)) ; prend le premier résident du liste
-             (result (offer current rlist plist matches)) ; essaie d'offrir le résident au programmes
-             (safe-result (if (list? result) result matches)) ; si une résultat (result) est valide, on va l'utiliser, 
-                                                              ; sinon on utilise matches
-            )
+      (let* ((current (car rlist)) ; prend le premier résident du liste
+             (result (if (matched? (car current) matches)
+                         matches ; deja apparier, on saute ce resident
+                         (offer current RLIST plist matches))) ; sinon essaie d'offir le resident aux programme
+             (safe-result (if (list? result) result matches))) ; si une résultat (result) est valide, on va l'utiliser, 
         (gale-shapley (cdr rlist) plist safe-result)))) ; passer le reste des résidents dans la fonction gale-shapley
 
 
@@ -252,12 +253,15 @@
         (display-program-matches m rlist plist)) matches)
     (display-not-matched not-matched-list rlist)
     (display "Number of unmatched residents: ")
-        (display (length not-matched-list)) (newline)
+    (display (length not-matched-list)) (newline)
     (display "Number of positions available: ")
     (display (get-total-available-positions matches plist))
     (newline)))
 
 
 ; Commande à éxécuter
-;(gale-shapley RLIST PLIST '())
 (gale-shapley-print RLIST PLIST)
+(with-output-to-file "output.txt"
+  (lambda ()
+    (gale-shapley-print RLIST PLIST)))
+
