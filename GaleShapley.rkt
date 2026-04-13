@@ -182,7 +182,6 @@
 
 ; gale-shapley : fonction principale de l'algorithme de McVitie-Wilson
 ; appelle offer pour chaque resident de la liste et retourne la liste finale des appariements
-
 (define (gale-shapley rlist plist matches)
   (if (null? rlist) matches ; si la liste est vide, rétourne matches
       (let* ((current (car rlist)) ; prend le premier résident du liste
@@ -192,7 +191,8 @@
              (safe-result (if (list? result) result matches))) ; si une résultat (result) est valide, on va l'utiliser, 
         (gale-shapley (cdr rlist) plist safe-result)))) ; passer le reste des résidents dans la fonction gale-shapley
 
-
+; get-not-matched-list
+; retourne la liste des IDs des residents qui n'ont pas ete appries dans la liste des appariements
 (define (get-not-matched-list rlist matches)
   (cond
     ((null? rlist) '()) ; si le liste des résidents est null, retourne une liste vide
@@ -202,6 +202,8 @@
      (cons (car (car rlist)) ; ajouter le ID du résident au liste
            (get-not-matched-list (cdr rlist) matches))))) ; fonction récursive, continue avec le reste du liste
 
+; diplay-program-matches
+; affiche les informations de chaque resident apparie a un programme (nom, prenom, ID resident,...)
 (define (display-program-matches match rlist plist)
   (let ((pid (car match)) (residents (cadr match))) ; trouver l'info nécessaire
     (for-each ; pour chaque...
@@ -219,6 +221,8 @@
          (newline)))
          residents))) ; pour chaque résident
 
+; display-not-matched
+; affiche les informations des residents non apparies avec XXX et NOT_MATCHED comme programme
 (define (display-not-matched not-matched rlist) ; même chose que display-program-matches, mais on trouver l'info
                                                 ; des résident qui n'ont pas des matches
   (for-each
@@ -231,6 +235,9 @@
        (newline)))
    not-matched))
 
+
+; get-total-available-positions
+; calcule le nombre total de posisitions encore disponibles dans tous les programmes apres les appariements
 (define (get-total-available-positions matches plist)
   (let loop ((plist plist) (total 0))
     (if (null? plist) total ; s'il n'y a pas des programmes qui reste, rétourne les positions disponibles (total)
