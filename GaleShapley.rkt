@@ -261,7 +261,7 @@
 
 ; Commande à éxécuter
 (gale-shapley-print RLIST PLIST)
-(with-output-to-file "output.txt"
-  (lambda ()
-    (gale-shapley-print RLIST PLIST)))
+;(with-output-to-file "output.txt"  ;pour creer le output.txt avec le output des fichiers 4000
+;  (lambda ()
+;    (gale-shapley-print RLIST PLIST)))
 
