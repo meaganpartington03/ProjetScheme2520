@@ -19,7 +19,7 @@ Resources utilisés :
 	- Utilisée pour la connaissance générale de la matière
 - https://www.scheme.org/ (Consulté le 1 avril)
 	- Utilisée pour la reference du language Scheme et la comprehension du paradigme fonctionnel 
-- https://docs.scheme.org/tyscheme/index-Z-H-7.html#TAG:__tex2page_sec_5.1
+- https://docs.scheme.org/tyscheme/index-Z-H-7.html#TAG:__tex2page_sec_5.1 (Consulté le 13 avril)
     - Utilisé pour l'information sur let et let*
 - https://www.scheme.com/tspl4/ (Consulté le 5 avril)
 	- Utilisée pour la comprehension des fonctions de listes (car, cdr, cadddr, cons) et predicats (null?, equal?, =).
